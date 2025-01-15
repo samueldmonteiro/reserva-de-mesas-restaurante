@@ -1,0 +1,111 @@
+services:
+  api:
+    container_name: api
+
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+      args:
+        UID: ${UID}
+        USER: ${USER}
+
+    volumes:
+      - ./api:/var/www/html
+
+    depends_on:
+      - db
+      - redis
+    networks:
+      - reserva_de_mesas
+
+    command: |
+      bash -c "[ ! -d 'vendor' ] && composer install && symfony serve --listen-ip=0.0.0.0 --port=8000 || symfony serve --listen-ip=0.0.0.0 --port=8000"
+
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  frontend:
+    container_name: frontend
+
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        UID: ${UID}
+        GID: ${GID}
+
+    volumes:
+      - ./frontend:/app
+
+    command: |
+      bash -c "[ ! -d 'node_modules' ] && yarn install && yarn dev --host 0.0.0.0 --port 5173 || yarn dev --host 0.0.0.0 --port 5173"
+
+    networks:
+      - reserva_de_mesas
+
+    ports:
+      - "127.0.0.1:5173:5173"
+
+  db:
+    container_name: db
+    image: mysql:8.0.30
+    restart: unless-stopped
+
+    volumes:
+      - db_data:/var/lib/mysql
+
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+
+    networks:
+      - reserva_de_mesas
+
+    ports:
+      - "127.0.0.1:3306:3306"
+
+  db_tests:
+    container_name: db_tests
+    image: mysql:8.0.30
+    restart: unless-stopped
+
+    volumes:
+      - db_tests_data:/var/lib/mysql
+
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+
+    networks:
+      - reserva_de_mesas
+
+    ports:
+      - "127.0.0.1:3308:3306"
+
+  redis:
+    image: redis:7.4.1
+    container_name: redis
+    ports:
+      - "127.0.0.1:6379:6379" 
+    volumes:
+      - redis_data:/data 
+    restart: always 
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    networks:
+      - reserva_de_mesas
+    command: ["sh", "-c", "redis-server --requirepass $REDIS_PASSWORD"]
+
+
+networks:
+  reserva_de_mesas:
+    driver: bridge
+
+volumes:
+  db_data:
+  db_tests_data:
+  redis_data:
