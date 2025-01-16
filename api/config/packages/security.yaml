@@ -1,0 +1,54 @@
+security:
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    providers:
+        app_client_provider:
+            entity:
+                class: App\Entity\Client
+                property: email
+        app_admin_provider:
+            entity:
+                class: App\Entity\Admin
+                property: username
+
+    firewalls:
+        login_client:
+            pattern: ^/api/v1/client/login
+            stateless: true
+            json_login:
+                check_path: /api/v1/client/login_check
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+                username_path: email
+                password_path: password
+            provider: app_client_provider
+
+        login_admin:
+            pattern: ^/api/v1/admin/login
+            stateless: true
+            json_login:
+                check_path: /api/v1/admin/login_check
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+                username_path: username
+                password_path: password
+            provider: app_admin_provider
+
+        api_client:
+            pattern: ^/api/v1/client
+            stateless: true
+            jwt: ~
+            provider: app_client_provider
+
+        api_admin:
+            pattern: ^/api/v1/admin
+            stateless: true
+            jwt: ~
+            provider: app_admin_provider
+
+    access_control:
+        - { path: ^/api/v1/client/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/admin/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/client, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/admin, roles: IS_AUTHENTICATED_FULLY }
