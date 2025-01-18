@@ -25,25 +25,25 @@ class RegisterClient
     {
         $data = (object) $data;
 
-        $name = $data->name ?? null;
-        $email = $data->email ?? null;
-        $password = $data->password ?? null;
-        $telphone = $data->telphone ?? null;
+        $name = trim($data->name) ?? null;
+        $email = trim($data->email) ?? null;
+        $password = trim($data->password) ?? null;
+        $telphone = trim($data->telphone) ?? null;
 
         if (empty($name) || empty($email) || empty($password) || empty($telphone)) {
             return new Error('Preencha todos os campos corretamente!', 400);
         }
 
-        if (strlen($password) < 4) {
-            return new Error('A Senha precisa conter mais de 4 caracteres', 400);
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new Error('O formato do email é inválido', 400);
         }
 
         if (!$this->checkTelphone($telphone)) {
             return new Error('O formato do telefone é inválido', 400);
         }
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return new Error('O formato do email é inválido', 400);
+        
+        if (strlen($password) < 4) {
+            return new Error('A Senha precisa conter mais de 4 caracteres', 400);
         }
 
         if ($this->clientRepository->findByEmail($email)) {

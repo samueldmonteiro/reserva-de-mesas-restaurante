@@ -11,7 +11,7 @@ class JWTAuthService
     public function __construct(
         private JWTTokenManagerInterface $jwtManager
     ) {}
-    public function createToken(UserInterface $user)
+    public function createToken(UserInterface $user): string
     {
         return $this->jwtManager->create($user);
     }
