@@ -25,10 +25,10 @@ class RegisterClient
     {
         $data = (object) $data;
 
-        $name = trim($data->name) ?? null;
-        $email = trim($data->email) ?? null;
-        $password = trim($data->password) ?? null;
-        $telphone = trim($data->telphone) ?? null;
+        $name = trim($data->name ?? null);
+        $email = trim($data->email ?? null);
+        $password = trim($data->password ?? null);
+        $telphone = trim($data->telphone ?? null);
 
         if (empty($name) || empty($email) || empty($password) || empty($telphone)) {
             return new Error('Preencha todos os campos corretamente!', 400);
@@ -41,7 +41,7 @@ class RegisterClient
         if (!$this->checkTelphone($telphone)) {
             return new Error('O formato do telefone é inválido', 400);
         }
-        
+
         if (strlen($password) < 4) {
             return new Error('A Senha precisa conter mais de 4 caracteres', 400);
         }
@@ -72,7 +72,6 @@ class RegisterClient
     private function checkTelphone(string $telphone): bool
     {
         $telphoneFormatted = preg_replace('/\D/', '', $telphone);
-
         return preg_match('/^\d{11}$/', $telphoneFormatted) === 1;
     }
 }

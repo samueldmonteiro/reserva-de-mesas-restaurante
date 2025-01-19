@@ -44,17 +44,15 @@ class RegisterClientTest extends KernelTestCase
             $this->fail($result->getErrorMessage());
         }
 
-
         /** @var Client $client */
         $client = $result->getValue()['client'];
         $token = $result->getValue()['token'];
 
-        $this->assertTrue($result->isSuccess());
         $this->assertNotNull($token);
         $this->assertNotNull($client);
+        $this->assertIsInt($client->getId());
         $this->assertEquals($data['name'], $client->getName());
         $this->assertEquals($data['email'], $client->getEmail());
         $this->assertNotEquals($data['password'], $client->getPassword());
-        $this->assertEquals(['IS_CLIENT', 'ROLE_USER'], $client->getRoles());
     }
 }

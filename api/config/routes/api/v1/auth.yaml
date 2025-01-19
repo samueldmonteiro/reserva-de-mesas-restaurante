@@ -1,0 +1,4 @@
+login_client:
+    path: /login/client
+    methods: [POST]
+    controller: App\Controller\AuthController::loginClient

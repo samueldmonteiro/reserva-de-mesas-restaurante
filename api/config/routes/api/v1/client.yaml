@@ -3,8 +3,3 @@ register:
     path: /register
     methods: [POST]
     controller: App\Controller\ClientController::register
-
-login:
-    path: /login
-    methods: [POST]
-    controller: App\Controller\ClientController::login
